@@ -1,0 +1,48 @@
+{
+  "name": "xcoremlcompiler",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Portable Core ML compiler in TypeScript, built with tsdown",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/xcoremlcompiler.d.cts",
+        "default": "./dist/xcoremlcompiler.cjs"
+      },
+      "import": {
+        "types": "./dist/xcoremlcompiler.d.mts",
+        "default": "./dist/xcoremlcompiler.mjs"
+      }
+    }
+  },
+  "bin": {
+    "xcoremlcompiler": "./dist/cli/index.mjs"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && npm run build:browser && npm run typecheck && node --test",
+    "format": "prettier --write src test tools *.ts *.json .github/workflows",
+    "build:browser": "tsdown --config tsdown.browser.config.ts"
+  },
+  "devDependencies": {
+    "@noble/ciphers": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@types/node": "^26.6.5",
+    "@types/yargs": "^17.0.35",
+    "jszip": "^3.10.2",
+    "plist": "^5.0.0",
+    "prettier": "^3.9.10",
+    "tsdown": "^0.23.2",
+    "typescript": "^6.0.3",
+    "yargs": "^17.7.3"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "main": "./dist/xcoremlcompiler.cjs",
+  "module": "./dist/xcoremlcompiler.mjs",
+  "types": "./dist/xcoremlcompiler.d.mts"
+}
