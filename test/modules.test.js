@@ -45,6 +45,7 @@ for (const [format, compiler] of [
 ])
   test(`${format} package export compiles every independent fixture`, () => {
     assert.equal(typeof compiler.compilePackage, "function");
+    assert.equal(typeof compiler.metadataPackage, "function");
     assert.equal(typeof compiler.parseEncryptionKey, "function");
     for (const c of [...corpus.cases, ...corpus.encrypted_cases]) {
       const input = new Map(
@@ -54,6 +55,15 @@ for (const [format, compiler] of [
         ]),
       );
       const warnings = [];
+      assert.deepEqual(
+        JSON.parse(
+          JSON.stringify(
+            compiler.metadataPackage(input, { modelName: c.name }),
+          ),
+        ),
+        c.metadata[0],
+        c.name,
+      );
       const result = compiler.compilePackage(input, {
         ...c.options,
         onWarning: (warning) => warnings.push(warning.message),
@@ -86,5 +96,22 @@ for (const [format, compiler] of [
         }
         assert.deepEqual(actual, expected, c.name + ": " + name);
       }
+    }
+    for (const c of corpus.metadata_cases) {
+      const input = new Map(
+        Object.entries(c.input).map(([name, encoded]) => [
+          name,
+          new Uint8Array(Buffer.from(encoded, "base64")),
+        ]),
+      );
+      assert.deepEqual(
+        JSON.parse(
+          JSON.stringify(
+            compiler.metadataPackage(input, { modelName: c.name }),
+          ),
+        ),
+        c.metadata[0],
+        c.name,
+      );
     }
   });

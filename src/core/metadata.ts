@@ -1,7 +1,54 @@
 import { Bytes } from "./bytes.js";
-import { modelAvailability } from "./compatibility.js";
+import { modelAvailability, type TargetPlatform } from "./compatibility.js";
 import { Message, field, str, keys } from "./proto.js";
 import { tensorInfo, quote } from "./mil.js";
+export interface FeatureMetadata {
+  name: string;
+  type: "MultiArray" | "Image";
+  shortDescription: string;
+  formattedType: string;
+  isOptional: string;
+  dataType?: string;
+  shape?: string;
+  hasShapeFlexibility?: string;
+  width?: string;
+  height?: string;
+  colorspace?: string;
+  isColor?: string;
+  hasSizeFlexibility?: string;
+}
+export interface PackageMetadata {
+  metadataOutputVersion: string;
+  specificationVersion: number;
+  generatedClassName: string;
+  method: string;
+  modelType: { name: string };
+  inputSchema: FeatureMetadata[];
+  outputSchema: FeatureMetadata[];
+  stateSchema: FeatureMetadata[];
+  modelParameters: unknown[];
+  mlProgramOperationTypeHistogram: Record<string, number>;
+  computePrecision: string;
+  storagePrecision?: string;
+  isUpdatable: string;
+  availability: Record<TargetPlatform, string>;
+  userDefinedMetadata: Record<string, string>;
+  shortDescription?: string;
+  version?: string;
+  author?: string;
+  license?: string;
+}
+function plainValue(value: any): any {
+  if (value instanceof Map)
+    return Object.fromEntries(
+      [...value].map(([key, item]) => [key, plainValue(item)]),
+    );
+  if (Array.isArray(value)) return value.map(plainValue);
+  return value;
+}
+export function metadataObject(model: Message, name: string): PackageMetadata {
+  return plainValue(metadata(model, name));
+}
 const obj = (...args: any[]): Map<string, any> =>
   new Map(
     Array.from({ length: args.length / 2 }, (_, i) => [
@@ -61,6 +108,13 @@ function dictionaryOrder(order: string[]): string[] {
 const orderedMap = (map: Map<string, any>, order: string[]) =>
   new Map(dictionaryOrder(order).map((k) => [k, map.get(k)]));
 export function appleJSON(v: any, level = 0): string {
+  if (
+    v !== null &&
+    typeof v === "object" &&
+    !Array.isArray(v) &&
+    !(v instanceof Map)
+  )
+    v = new Map(Object.entries(v));
   const pad = "  ".repeat(level),
     next = "  ".repeat(level + 1);
   if (v instanceof Map)

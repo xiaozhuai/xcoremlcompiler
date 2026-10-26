@@ -65,6 +65,7 @@ const output = {
   cases: [],
   encrypted_cases: [],
   archive_cases: [],
+  metadata_cases: [],
 };
 for (const [field, cases] of [
   ["cases", source.cases],
@@ -78,6 +79,9 @@ for (const [field, cases] of [
           "base64",
         );
     const input = await writeFixture(path.join(root, "inputs"), c);
+    c.metadata = JSON.parse(
+      (await exec(reference, ["metadata", input])).stdout,
+    );
     let keyPath;
     if (c.key) {
       const oldBytes = Buffer.from(c.key, "base64"),
@@ -159,6 +163,12 @@ for (const [field, cases] of [
     }
     output[field].push(c);
   }
+for (const original of source.metadata_cases ?? []) {
+  const c = structuredClone(original);
+  const input = await writeFixture(path.join(root, "metadata-inputs"), c);
+  c.metadata = JSON.parse((await exec(reference, ["metadata", input])).stdout);
+  output.metadata_cases.push(c);
+}
 await fs.writeFile(
   path.join(root, "corpus.json"),
   JSON.stringify(output) + "\n",

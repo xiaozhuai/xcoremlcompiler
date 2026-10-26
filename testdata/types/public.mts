@@ -1,7 +1,10 @@
 import {
   compilePackage,
+  metadataPackage,
   parseEncryptionKey,
   type CompileOptions,
+  type MetadataOptions,
+  type PackageMetadata,
   type PackageFiles,
   type TargetPlatform,
   type CompileWarning,
@@ -16,5 +19,10 @@ const key: ReturnType<typeof parseEncryptionKey> = parseEncryptionKey(
 );
 void result;
 void key;
+const metadataOptions: MetadataOptions = {modelName:"Example"};
+const metadata: PackageMetadata = metadataPackage(input, metadataOptions);
+const specificationVersion: number = metadata.specificationVersion;
+void specificationVersion;
+void metadata;
 // @ts-expect-error Archive creation is CLI-only.
 compilePackage(input, { createArchive: true });

@@ -8,5 +8,10 @@ const key: ReturnType<typeof compiler.parseEncryptionKey> =
   compiler.parseEncryptionKey(new Uint8Array());
 void result;
 void key;
+const metadataOptions: compiler.MetadataOptions = {modelName:"Example"};
+const metadata: compiler.PackageMetadata = compiler.metadataPackage(input, metadataOptions);
+const specificationVersion: number = metadata.specificationVersion;
+void specificationVersion;
+void metadata;
 // @ts-expect-error Archive creation is CLI-only.
 compiler.compilePackage(input, { createArchive: true });

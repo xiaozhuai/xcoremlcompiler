@@ -3,10 +3,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {
   compilePackage,
+  metadataPackage,
   type CompileOptions,
   type PackageFiles,
 } from "../core/compiler.js";
 import { parseEncryptionKey, type EncryptionKey } from "../core/encryption.js";
+import type { PackageMetadata } from "../core/metadata.js";
 export interface DirectoryOptions extends Omit<
   CompileOptions,
   "modelName" | "encryptionKey"
@@ -41,11 +43,7 @@ async function resolvedPath(output: string): Promise<string> {
     path.relative(ancestor, path.resolve(output)),
   );
 }
-export async function compileDirectory(
-  input: string,
-  outputPath: string,
-  options: DirectoryOptions = {},
-): Promise<string> {
+async function packageSource(input: string): Promise<string> {
   const source = await fs.realpath(input);
   if (
     path.extname(source).toLowerCase() !== ".mlpackage" ||
@@ -54,15 +52,11 @@ export async function compileDirectory(
     throw new Error(
       "Only MIL/ML Program .mlpackage inputs are supported; standalone .mlmodel and Espresso inputs are rejected",
     );
-  const output = await resolvedPath(outputPath);
-  if (inside(source, output))
-    throw new Error("Output must be outside source directory");
-  try {
-    await fs.lstat(output);
-    throw new Error("Output already exists");
-  } catch (error: any) {
-    if (error.code !== "ENOENT") throw error;
-  }
+  return source;
+}
+async function readPackageFiles(
+  source: string,
+): Promise<Map<string, Uint8Array>> {
   const files = new Map<string, Uint8Array>();
   async function readDirectory(directory: string) {
     for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
@@ -78,6 +72,32 @@ export async function compileDirectory(
     }
   }
   await readDirectory(source);
+  return files;
+}
+export async function metadataDirectory(
+  input: string,
+): Promise<PackageMetadata> {
+  const files = await readPackageFiles(await packageSource(input));
+  return metadataPackage(files, {
+    modelName: path.basename(input, path.extname(input)),
+  });
+}
+export async function compileDirectory(
+  input: string,
+  outputPath: string,
+  options: DirectoryOptions = {},
+): Promise<string> {
+  const source = await packageSource(input);
+  const output = await resolvedPath(outputPath);
+  if (inside(source, output))
+    throw new Error("Output must be outside source directory");
+  try {
+    await fs.lstat(output);
+    throw new Error("Output already exists");
+  } catch (error: any) {
+    if (error.code !== "ENOENT") throw error;
+  }
+  const files = await readPackageFiles(source);
   const result = compilePackage(files as PackageFiles, {
     packageMetadataJSON: options.packageMetadataJSON,
     platform: options.platform,

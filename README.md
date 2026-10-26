@@ -8,6 +8,7 @@ A cross-platform compiler that converts Core ML MIL/ML Program `.mlpackage` mode
 npm install -g xcoremlcompiler
 
 xcoremlcompiler compile Example.mlpackage --output Example.mlmodelc
+xcoremlcompiler metadata Example.mlpackage
 xcoremlcompiler compile Example.mlpackage --output Example.encrypted.mlmodelc --encrypt Example.mlmodelkey
 xcoremlcompiler compile Example.mlpackage --output Example.mlarchive --create-archive
 xcoremlcompiler compile Example.mlpackage --output Example.mlmodelc --package-metadata-json NO --platform iOS --deployment-target 18.0
@@ -26,13 +27,13 @@ npm install xcoremlcompiler
 ESM:
 
 ```js
-import { compilePackage, parseEncryptionKey } from "xcoremlcompiler";
+import { compilePackage, metadataPackage, parseEncryptionKey } from "xcoremlcompiler";
 ```
 
 CommonJS:
 
 ```js
-const { compilePackage, parseEncryptionKey } = require("xcoremlcompiler");
+const { compilePackage, metadataPackage, parseEncryptionKey } = require("xcoremlcompiler");
 ```
 
 Pass all `.mlpackage` files as a `Map<string, Uint8Array>`, keyed by package-relative paths such as `Manifest.json` and `Data/com.apple.CoreML/model.mlmodel`.
@@ -50,3 +51,9 @@ const outputFiles = compilePackage(packageFiles, {
 ```
 
 `outputFiles` is a `Map<string, Uint8Array>` containing the compiled files. Save its entries under `Example.mlmodelc/`.
+
+Read model metadata:
+
+```ts
+const metadata = metadataPackage(packageFiles, { modelName: "Example" });
+```

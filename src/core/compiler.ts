@@ -10,6 +10,8 @@ import {
 } from "./compatibility.js";
 import {
   metadata,
+  metadataObject,
+  type PackageMetadata,
   appleJSON,
   canonicalDescription,
   overlayDescription,
@@ -40,10 +42,7 @@ function normalize(name: string): string {
   }
   return result.join("/");
 }
-export function compilePackage(
-  input: PackageFiles,
-  options: CompileOptions = {},
-): Map<string, Uint8Array> {
+function loadPackage(input: PackageFiles) {
   const read = (name: string): Bytes => {
     const value = input.get(normalize(name));
     if (!value) throw new Error(`Missing package file: ${name}`);
@@ -84,7 +83,26 @@ export function compilePackage(
       featuresJSON = read(itemPath(item.path)).toString();
     if (item.name === "weights") weightRoot = itemPath(item.path);
   }
-  const model = overlayDescription(original, metadataJSON, featuresJSON),
+  const model = overlayDescription(original, metadataJSON, featuresJSON);
+  return { read, data, root, model, weightRoot };
+}
+export interface MetadataOptions {
+  modelName?: string;
+}
+/** Read package metadata without generating compiled model files. */
+export function metadataPackage(
+  input: PackageFiles,
+  options: MetadataOptions = {},
+): PackageMetadata {
+  const { read, model, weightRoot } = loadPackage(input);
+  readWeights(model, weightRoot, read);
+  return metadataObject(model, options.modelName ?? "Model");
+}
+export function compilePackage(
+  input: PackageFiles,
+  options: CompileOptions = {},
+): Map<string, Uint8Array> {
+  const { read, data, root, model, weightRoot } = loadPackage(input),
     name = options.modelName ?? "Model";
   checkDeploymentTarget(model.int(1), options);
   if (
@@ -102,6 +120,25 @@ export function compilePackage(
     ],
   ]);
   if (options.packageMetadataJSON === false) result.delete("metadata.json");
+  for (const [name, data] of readWeights(model, weightRoot, read))
+    result.set(name, data);
+  if (options.encryptionKey) {
+    result.delete("metadata.json");
+    for (const [name, data] of result)
+      result.set(name, encryptBytes(data, options.encryptionKey));
+    result.set(
+      "encryptionInfo/coremldata.bin",
+      encryptionInfo(options.encryptionKey),
+    );
+  }
+  return result;
+}
+function readWeights(
+  model: Message,
+  weightRoot: string | undefined,
+  read: (name: string) => Bytes,
+): Map<string, Bytes> {
+  const result = new Map<string, Bytes>();
   for (const raw of model.child(502).map(2).values()) {
     const fn = new Message(raw);
     for (const block of fn.map(3).values())
@@ -131,15 +168,6 @@ export function compilePackage(
             throw new Error("Weight blob data out of bounds");
           result.set("weights/" + relative, weight);
         }
-  }
-  if (options.encryptionKey) {
-    result.delete("metadata.json");
-    for (const [name, data] of result)
-      result.set(name, encryptBytes(data, options.encryptionKey));
-    result.set(
-      "encryptionInfo/coremldata.bin",
-      encryptionInfo(options.encryptionKey),
-    );
   }
   return result;
 }

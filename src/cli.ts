@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { compileDirectory } from "./cli/filesystem.js";
+import { compileDirectory, metadataDirectory } from "./cli/filesystem.js";
 import { referenceVersion } from "./core/compiler.js";
+import { appleJSON } from "./core/metadata.js";
 import { normalizePlatform, targetPlatforms } from "./core/compatibility.js";
 try {
   await yargs(hideBin(process.argv))
     .scriptName("xcoremlcompiler")
-    .usage("$0 compile <input> --output <exact-path> [options]")
+    .usage("$0 <command> [options]")
     .command(
       "compile <input>",
       "Compile a MIL/ML Program .mlpackage",
@@ -63,6 +64,19 @@ try {
               console.warn(`xcoremlcompiler: warning: ${warning.message}`),
           }),
         );
+      },
+    )
+    .command(
+      "metadata <input>",
+      "Display metadata for a MIL/ML Program .mlpackage as JSON",
+      (builder) =>
+        builder.positional("input", {
+          type: "string",
+          demandOption: true,
+          describe: "MIL .mlpackage directory",
+        }),
+      async (args) => {
+        process.stdout.write(appleJSON([await metadataDirectory(args.input)]));
       },
     )
     .command(

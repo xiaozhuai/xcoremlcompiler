@@ -43,6 +43,13 @@ test("portable core: every synthetic case without Node globals", async () => {
       ]),
     );
     const warnings = [];
+    assert.deepEqual(
+      JSON.parse(
+        JSON.stringify(core.metadataPackage(inputs, { modelName: c.name })),
+      ),
+      c.metadata[0],
+      c.name,
+    );
     const result = core.compilePackage(inputs, {
       ...c.options,
       onWarning: (warning) => warnings.push(warning.message),
@@ -75,5 +82,20 @@ test("portable core: every synthetic case without Node globals", async () => {
       }
       assert.deepEqual(actual, expected, c.name + ": " + name);
     }
+  }
+  for (const c of corpus.metadata_cases) {
+    const inputs = new Map(
+      Object.entries(c.input).map(([name, encoded]) => [
+        name,
+        new Uint8Array(Buffer.from(encoded, "base64")),
+      ]),
+    );
+    assert.deepEqual(
+      JSON.parse(
+        JSON.stringify(core.metadataPackage(inputs, { modelName: c.name })),
+      ),
+      c.metadata[0],
+      c.name,
+    );
   }
 });
