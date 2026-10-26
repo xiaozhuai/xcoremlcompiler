@@ -5,20 +5,23 @@ A cross-platform compiler that converts Core ML MIL/ML Program `.mlpackage` mode
 ## CLI
 
 ```sh
-npm ci
-npm run build
+npm install -g xcoremlcompiler
 
-node dist/cli/index.mjs compile Example.mlpackage --output Example.mlmodelc
-node dist/cli/index.mjs compile Example.mlpackage --output Example.encrypted.mlmodelc --encrypt Example.mlmodelkey
-node dist/cli/index.mjs compile Example.mlpackage --output Example.mlarchive --create-archive
-node dist/cli/index.mjs compile Example.mlpackage --output Example.mlmodelc --package-metadata-json NO --platform iOS --deployment-target 18.0
+xcoremlcompiler compile Example.mlpackage --output Example.mlmodelc
+xcoremlcompiler compile Example.mlpackage --output Example.encrypted.mlmodelc --encrypt Example.mlmodelkey
+xcoremlcompiler compile Example.mlpackage --output Example.mlarchive --create-archive
+xcoremlcompiler compile Example.mlpackage --output Example.mlmodelc --package-metadata-json NO --platform iOS --deployment-target 18.0
 ```
 
-`--output` specifies the full output path: a `.mlmodelc` directory, or a `.mlarchive` file with `--create-archive` (CLI only). Run `node dist/cli/index.mjs --help` for available options.
+`--output` specifies the full output path: a `.mlmodelc` directory, or a `.mlarchive` file with `--create-archive` (CLI only). Run `xcoremlcompiler --help` for available options.
 
 Metadata JSON is included by default. Platform and deployment target checks warn about incompatible OS versions and continue compilation.
 
 ## Library
+
+```sh
+npm install xcoremlcompiler
+```
 
 ESM:
 
