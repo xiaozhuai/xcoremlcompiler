@@ -9,8 +9,8 @@ const key: ReturnType<typeof compiler.parseEncryptionKey> =
 void result;
 void key;
 const metadataOptions: compiler.MetadataOptions = {modelName:"Example"};
-const metadata: compiler.PackageMetadata = compiler.metadataPackage(input, metadataOptions);
-const specificationVersion: number = metadata.specificationVersion;
+const metadata: compiler.PackageMetadata[] = compiler.metadataPackage(input, metadataOptions);
+const specificationVersion: number = metadata[0].specificationVersion;
 void specificationVersion;
 void metadata;
 // @ts-expect-error Archive creation is CLI-only.

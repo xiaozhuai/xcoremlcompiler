@@ -18,7 +18,7 @@ const corpus = JSON.parse(
     "utf8",
   ),
 );
-test("metadataPackage returns an independent metadata object", () => {
+test("metadataPackage returns an independent metadata array", () => {
   const c = corpus.cases[0];
   const input = new Map(
     Object.entries(c.input).map(([name, encoded]) => [
@@ -28,14 +28,12 @@ test("metadataPackage returns an independent metadata object", () => {
   );
   const result = metadataPackage(input, { modelName: c.name });
   assert.equal(typeof result, "object");
-  assert.equal(Array.isArray(result), false);
-  assert.deepEqual(result, c.metadata[0]);
-  result.inputSchema[0].name = "changed";
-  result.userDefinedMetadata.changed = "yes";
-  assert.deepEqual(
-    metadataPackage(input, { modelName: c.name }),
-    c.metadata[0],
-  );
+  assert.equal(Array.isArray(result), true);
+  assert.deepEqual(result, c.metadata);
+  result[0].inputSchema[0].name = "changed";
+  result[0].userDefinedMetadata.changed = "yes";
+  result.length = 0;
+  assert.deepEqual(metadataPackage(input, { modelName: c.name }), c.metadata);
 });
 for (const c of [
   ...[

@@ -76,7 +76,7 @@ async function readPackageFiles(
 }
 export async function metadataDirectory(
   input: string,
-): Promise<PackageMetadata> {
+): Promise<PackageMetadata[]> {
   const files = await readPackageFiles(await packageSource(input));
   return metadataPackage(files, {
     modelName: path.basename(input, path.extname(input)),

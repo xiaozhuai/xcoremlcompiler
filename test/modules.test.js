@@ -61,7 +61,7 @@ for (const [format, compiler] of [
             compiler.metadataPackage(input, { modelName: c.name }),
           ),
         ),
-        c.metadata[0],
+        c.metadata,
         c.name,
       );
       const result = compiler.compilePackage(input, {
@@ -110,7 +110,7 @@ for (const [format, compiler] of [
             compiler.metadataPackage(input, { modelName: c.name }),
           ),
         ),
-        c.metadata[0],
+        c.metadata,
         c.name,
       );
     }

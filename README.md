@@ -52,8 +52,8 @@ const outputFiles = compilePackage(packageFiles, {
 
 `outputFiles` is a `Map<string, Uint8Array>` containing the compiled files. Save its entries under `Example.mlmodelc/`.
 
-Read model metadata:
+Read model metadata as an array:
 
 ```ts
-const metadata = metadataPackage(packageFiles, { modelName: "Example" });
+const [metadata] = metadataPackage(packageFiles, { modelName: "Example" });
 ```

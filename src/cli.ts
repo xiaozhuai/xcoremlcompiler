@@ -76,7 +76,7 @@ try {
           describe: "MIL .mlpackage directory",
         }),
       async (args) => {
-        process.stdout.write(appleJSON([await metadataDirectory(args.input)]));
+        process.stdout.write(appleJSON(await metadataDirectory(args.input)));
       },
     )
     .command(

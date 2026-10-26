@@ -47,7 +47,7 @@ test("portable core: every synthetic case without Node globals", async () => {
       JSON.parse(
         JSON.stringify(core.metadataPackage(inputs, { modelName: c.name })),
       ),
-      c.metadata[0],
+      c.metadata,
       c.name,
     );
     const result = core.compilePackage(inputs, {
@@ -94,7 +94,7 @@ test("portable core: every synthetic case without Node globals", async () => {
       JSON.parse(
         JSON.stringify(core.metadataPackage(inputs, { modelName: c.name })),
       ),
-      c.metadata[0],
+      c.metadata,
       c.name,
     );
   }

@@ -89,14 +89,14 @@ function loadPackage(input: PackageFiles) {
 export interface MetadataOptions {
   modelName?: string;
 }
-/** Read package metadata without generating compiled model files. */
+/** Return the metadata array used by the native metadata command. */
 export function metadataPackage(
   input: PackageFiles,
   options: MetadataOptions = {},
-): PackageMetadata {
+): PackageMetadata[] {
   const { read, model, weightRoot } = loadPackage(input);
   readWeights(model, weightRoot, read);
-  return metadataObject(model, options.modelName ?? "Model");
+  return [metadataObject(model, options.modelName ?? "Model")];
 }
 export function compilePackage(
   input: PackageFiles,

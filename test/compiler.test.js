@@ -30,7 +30,7 @@ for (const c of [...corpus.cases, ...corpus.encrypted_cases])
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "xcoreml-js-"));
     try {
       const input = await writeFixture(root, c);
-      assert.deepEqual(await metadataDirectory(input), c.metadata[0]);
+      assert.deepEqual(await metadataDirectory(input), c.metadata);
       const encryptionKeyPath = c.key
         ? path.join(root, "synthetic.mlmodelkey")
         : undefined;
