@@ -1,6 +1,7 @@
 {
   "name": "xcoremlcompiler",
   "version": "0.1.3",
+  "license": "MIT",
   "type": "module",
   "description": "A cross-platform compiler that converts CoreML MIL/ML Program .mlpackage models into .mlmodelc directories, with optional encryption",
   "exports": {
