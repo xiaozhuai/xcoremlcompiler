@@ -88,7 +88,7 @@ try {
           `xcoremlcompiler experimental (format ${referenceVersion})`,
         ),
     )
-    .version(`0.1.0 (Apple format ${referenceVersion})`)
+    .version(`0.1.3 (Apple format ${referenceVersion})`)
     .help()
     .strict()
     .demandCommand(1)
