@@ -1,0 +1,50 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Check release version
+        id: version
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync, appendFileSync } from "node:fs";
+          const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+          const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+          if (process.env.GITHUB_REF_NAME !== `v${pkg.version}` ||
+              lock.version !== pkg.version || lock.packages[""].version !== pkg.version) {
+            throw new Error("Tag, package.json and package-lock.json versions must match");
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT,
+            `dist_tag=${pkg.version.includes("-") ? "next" : "latest"}\n`);
+          JS
+      - run: npm ci
+      - name: Build and test
+        run: npm test
+      - name: Check package contents
+        run: npm pack --dry-run
+      - name: Publish to npm
+        run: npm publish

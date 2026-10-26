@@ -44,5 +44,9 @@
   ],
   "main": "./dist/xcoremlcompiler.cjs",
   "module": "./dist/xcoremlcompiler.mjs",
-  "types": "./dist/xcoremlcompiler.d.mts"
+  "types": "./dist/xcoremlcompiler.d.mts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaozhuai/xcoremlcompiler.git"
+  }
 }
