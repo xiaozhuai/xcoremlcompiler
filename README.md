@@ -1,6 +1,6 @@
 # xcoremlcompiler
 
-A cross-platform compiler that converts Core ML MIL/ML Program `.mlpackage` models into `.mlmodelc` directories, with optional encryption. Legacy Espresso models are not supported.
+A cross-platform compiler that converts CoreML MIL/ML Program `.mlpackage` models into `.mlmodelc` directories, with optional encryption. Legacy Espresso models are not supported.
 
 ## CLI
 
