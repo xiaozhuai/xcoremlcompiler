@@ -57,3 +57,45 @@ Read model metadata as an array:
 ```ts
 const [metadata] = metadataPackage(packageFiles, { modelName: "Example" });
 ```
+
+## Testing
+
+From a checkout, use Node.js 22 or 24 and run:
+
+```sh
+npm ci
+npm test
+```
+
+`npm test` builds the Node.js and browser bundles, runs TypeScript type checking, and executes the Node.js test suite. Local tests use the committed fixtures in `testdata/corpus.json`; macOS and Apple's compiler are not required.
+
+The suite checks:
+
+- Compilation and metadata against expected outputs from Apple's Core ML compiler version `3500.32.1`, using independently constructed synthetic models, weights, and test keys. Cases include FP16 and FP32 operators, inline constants, external weights, casts, and model specification versions.
+- Output file lists and byte contents. JSON is compared structurally, and `coremldata.bin` is canonicalized when bytes differ to allow equivalent protobuf field ordering.
+- Encryption, decryption round trips, archives, CLI options, deployment warnings, invalid inputs, and source file preservation.
+- ESM, CommonJS, and browser bundles. Portability checks execute the bundles in a JavaScript VM without Node.js globals such as `process`, `Buffer`, or `require`; they do not launch a real browser.
+
+### CI reference generation
+
+The [conformance workflow](.github/workflows/test.yml) first runs on macOS, downloads the pinned Apple reference compiler, verifies its SHA-256 checksum, and generates fresh synthetic weights, encryption keys, and reference outputs. It then runs the test suite against that generated corpus on Linux, Windows, and macOS with Node.js 22 and 24.
+
+To regenerate reference fixtures locally, use macOS and the same reference compiler version. The output directory must not already exist:
+
+```sh
+npm run build
+node tools/prepare-conformance.mjs --reference /path/to/coremlcompiler --output /tmp/xcoreml-conformance
+XCOREML_CONFORMANCE_FILE=/tmp/xcoreml-conformance/corpus.json npm test
+```
+
+### Optional Core ML runtime validation
+
+Output conformance checks compiled artifacts. To also compare inference results on macOS with Swift and Core ML available, generate a differential report and run the runtime validator:
+
+```sh
+npm run build
+node tools/verify.mjs --reference /path/to/coremlcompiler --synthetic --work /tmp/xcoreml-runtime
+swift tools/validate-runtime.swift /tmp/xcoreml-runtime/report.json
+```
+
+The work directory must not already exist. The validator loads the reference and generated models with CPU-only execution and compares output shapes and values for unencrypted synthetic cases that compiled successfully. This is an optional check, separate from `npm test` and the conformance CI workflow.
