@@ -5,7 +5,7 @@ A cross-platform compiler that converts CoreML MIL/ML Program `.mlpackage` model
 ## CLI
 
 ```sh
-npm install -g xcoremlcompiler
+pnpm install -g xcoremlcompiler
 
 xcoremlcompiler compile Example.mlpackage --output Example.mlmodelc
 xcoremlcompiler metadata Example.mlpackage
@@ -21,7 +21,7 @@ Metadata JSON is included by default. Platform and deployment target checks warn
 ## Library
 
 ```sh
-npm install xcoremlcompiler
+pnpm install xcoremlcompiler
 ```
 
 ESM:
@@ -60,14 +60,12 @@ const [metadata] = metadataPackage(packageFiles, { modelName: "Example" });
 
 ## Testing
 
-From a checkout, use Node.js 22 or 24 and run:
-
 ```sh
-npm ci
-npm test
+pnpm install
+pnpm test
 ```
 
-`npm test` builds the Node.js and browser bundles, runs TypeScript type checking, and executes the Node.js test suite. Local tests use the committed fixtures in `testdata/corpus.json`; macOS and Apple's compiler are not required.
+`pnpm test` builds the Node.js and browser bundles, runs TypeScript type checking, and executes the Node.js test suite. Local tests use the committed fixtures in `testdata/corpus.json`; macOS and Apple's compiler are not required.
 
 The suite checks:
 
@@ -83,9 +81,9 @@ The [conformance workflow](.github/workflows/test.yml) first runs on macOS, down
 To regenerate reference fixtures locally, use macOS and the same reference compiler version. The output directory must not already exist:
 
 ```sh
-npm run build
+pnpm run build
 node tools/prepare-conformance.mjs --reference /path/to/coremlcompiler --output /tmp/xcoreml-conformance
-XCOREML_CONFORMANCE_FILE=/tmp/xcoreml-conformance/corpus.json npm test
+XCOREML_CONFORMANCE_FILE=/tmp/xcoreml-conformance/corpus.json pnpm test
 ```
 
 ### Optional Core ML runtime validation
@@ -93,9 +91,9 @@ XCOREML_CONFORMANCE_FILE=/tmp/xcoreml-conformance/corpus.json npm test
 Output conformance checks compiled artifacts. To also compare inference results on macOS with Swift and Core ML available, generate a differential report and run the runtime validator:
 
 ```sh
-npm run build
+pnpm run build
 node tools/verify.mjs --reference /path/to/coremlcompiler --synthetic --work /tmp/xcoreml-runtime
 swift tools/validate-runtime.swift /tmp/xcoreml-runtime/report.json
 ```
 
-The work directory must not already exist. The validator loads the reference and generated models with CPU-only execution and compares output shapes and values for unencrypted synthetic cases that compiled successfully. This is an optional check, separate from `npm test` and the conformance CI workflow.
+The work directory must not already exist. The validator loads the reference and generated models with CPU-only execution and compares output shapes and values for unencrypted synthetic cases that compiled successfully. This is an optional check, separate from `pnpm test` and the conformance CI workflow.

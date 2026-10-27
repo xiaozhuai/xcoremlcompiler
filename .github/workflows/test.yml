@@ -13,16 +13,22 @@ jobs:
     name: Generate independent Apple reference fixtures
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npm run typecheck
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: latest
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm run build
+      - name: Typecheck
+        run: pnpm run typecheck
       - name: Download pinned reference compiler
         shell: bash
         run: |
@@ -36,7 +42,8 @@ jobs:
         shell: bash
         run: |
           node tools/prepare-conformance.mjs --reference "$RUNNER_TEMP/coreml-reference/libexec/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/coremlcompiler" --output "$RUNNER_TEMP/conformance"
-      - uses: actions/upload-artifact@v7
+      - name: Upload independent conformance artifact
+        uses: actions/upload-artifact@v7
         with:
           name: independent-conformance
           path: ${{ runner.temp }}/conformance/corpus.json
@@ -52,18 +59,24 @@ jobs:
         node: ["22", "24"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
-      - uses: actions/download-artifact@v8
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: latest
+      - name: Download independent conformance artifact
+        uses: actions/download-artifact@v8
         with:
           name: independent-conformance
           path: ${{ runner.temp }}/conformance
-      - run: npm ci
-      - run: npm test
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run tests
+        run: pnpm test
         env:
           XCOREML_CONFORMANCE_FILE: ${{ runner.temp }}/conformance/corpus.json
