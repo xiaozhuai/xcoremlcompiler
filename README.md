@@ -2,6 +2,10 @@
 
 A cross-platform compiler that converts CoreML MIL/ML Program `.mlpackage` models into `.mlmodelc` directories, with optional encryption. Legacy Espresso models are not supported.
 
+[![Build](https://github.com/xiaozhuai/xcoremlcompiler/actions/workflows/test.yml/badge.svg)](https://github.com/xiaozhuai/xcoremlcompiler/actions/workflows/test.yml)
+
+[![NPM Download Stats](https://nodei.co/npm/xcoremlcompiler.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/xcoremlcompiler)
+
 ## CLI
 
 ```sh
